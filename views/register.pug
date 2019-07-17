@@ -1,0 +1,17 @@
+extends template.pug
+
+block content
+  h1 Register
+  if error
+    div(class="alert alert-danger" role="alert") #{error}
+  form(action="register" method="POST")
+    div.form-group
+      input(id="username" type="text" name="username" placeholder="Username" class="form-control" required)
+    div.form-group
+      input(id="password" type="password" name="password" placeholder="Password" class="form-control" required)
+    div.form-group
+      input(id="confirmPassword" type="password" name="confirmPassword" placeholder="Confirm password" class="form-control" required)
+    div.form-group
+      input(id="apikey" type="text" name="apikey" placeholder="API Key" class="form-control" required)  
+    div.form-actions  
+        input(type="submit" value="Register" class="btn btn-primary btn-lg")
