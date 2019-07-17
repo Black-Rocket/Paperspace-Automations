@@ -32,25 +32,30 @@ app.use(
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 
-// database connection
-mongoose.connect('mongodb://localhost:27017/br-example', {useNewUrlParser: true});
+// get routes
+const routes = require('./Routes/routes');
+const profileRoutes = require('./Routes/profile');
+const loginRoutes = require('./Routes/login');
+const registerRoutes = require('./Routes/register');
+app.use('/', routes, profileRoutes, registerRoutes, loginRoutes);
 
+
+// database connection
+mongoose.connect('mongodb://localhost:27017/br-example', {
+  useNewUrlParser: true,
+});
+
+// Only start the server if we can connect to database
 const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function() {
   // we're connected!
   console.log('Database connection successful!');
-});
 
-// get routes
-const routes = require('./Routes/routes');
-const loginRoutes = require('./Routes/login');
-const registerRoutes = require('./Routes/register');
-app.use('/', routes, registerRoutes, loginRoutes);
-
-/**
- * Start the server on port 3000 or another port.
- */
-app.listen(port, () => {
-  console.log('Server started on port ' + port + '.');
+  /**
+   * Start the server on port 3000 or another port.
+   */
+  app.listen(port, () => {
+    console.log('Server started on port ' + port + '.');
+  });
 });

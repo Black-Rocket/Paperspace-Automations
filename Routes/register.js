@@ -46,6 +46,8 @@ router.post('/register', (req, res, next) => {
     });
 
     req.session.error = '';
+    req.session.user = newUser;
+
     res.redirect('/profile');
     res.end();
   } else {
