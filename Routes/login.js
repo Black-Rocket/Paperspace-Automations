@@ -17,18 +17,20 @@ router.post('/login', (req, res, next) => {
   const password = req.body.password;
 
   if (username && password) {
+    // Find if the username exists
     User.findOne({username: username, password: password}, (err, result) => {
       if (err) {
         next(err);
       } else {
         if (result != null) {
+          // Username checks out!
           req.app.locals.user = result;
 
           res.redirect('/profile');
-          res.end();
         } else {
+          // No username here!
+          req.app.locals.error = 'Invalid username or password!';
           res.redirect('/login');
-          res.end();
         }
       }
     });
@@ -39,11 +41,9 @@ router.post('/login', (req, res, next) => {
  * Destroy the user session when logging out
  */
 router.all('/logout', (req, res, next) => {
-  console.log('user is logged out');
   req.session.destroy();
   req.app.locals.user = null;
   res.redirect('/');
-  res.end();
 });
 
 // Export our routes to the app

@@ -2,6 +2,8 @@ extends template.pug
 
 block content
   h1 Login
+  if error
+    div(class="alert alert-danger" role="alert") #{error}
   form(action="login" method="POST")
     div.form-group
       input(id="username" type="text" name="username" placeholder="Username" class="form-control" required)
