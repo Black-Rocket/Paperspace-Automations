@@ -2,4 +2,9 @@ extends template.pug
 
 block content
     if user
-        h1 #{user.username} Profile
+        h1 Hello, #{user.username}!
+        h2 Account Details
+        p Username: #{user.username}
+        p API Key: #{user.apikey}
+    else    
+        h1 Login/Register to view user credentials

@@ -2,7 +2,6 @@ const express = require('express');
 // eslint-disable-next-line new-cap
 const router = express.Router();
 const User = require('../models/user');
-
 /**
  * The get request for logging into an existing account
  */
@@ -20,8 +19,9 @@ router.post('/login', (req, res, next) => {
   if (username && password) {
     User.findOne({username: username, password: password}, (err, result) => {
       if (err) throw err;
-      const user = result;
-      req.session.user = user;
+
+      req.app.locals.user = result;
+
       res.redirect('/profile');
       res.end();
     });
@@ -36,7 +36,9 @@ router.post('/login', (req, res, next) => {
  * Destroy the user session when logging out
  */
 router.all('/logout', (req, res, next) => {
+  console.log('user is logged out');
   req.session.destroy();
+  req.app.locals.user = null;
   res.redirect('/');
   res.end();
 });

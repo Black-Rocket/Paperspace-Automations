@@ -3,12 +3,11 @@ const express = require('express');
 const router = express.Router();
 
 const User = require('../models/user');
-
 /**
  * The get request for making an account
  */
 router.get('/register', (req, res, next) => {
-  if (req.session.error != '') {
+  if (req.session.error && req.session.error != '') {
     res.render('register', {error: req.session.error});
   }
   res.render('register');
@@ -25,9 +24,9 @@ router.post('/register', (req, res, next) => {
   apikey = req.body.apikey;
 
   // Make sure the username and password have been entered
-  if (username && password && apikey) {
+  if (username && password && confirmPassword && apikey) {
     // Confirm that the correct password was typed in
-    if (password != confirmPassword) {
+    if (password.localeCompare(confirmPassword)) {
       req.session.error = 'Passwords do not match!';
       res.redirect('/register');
       res.end();
@@ -41,12 +40,10 @@ router.post('/register', (req, res, next) => {
 
     newUser.save((err) => {
       if (err) throw err;
-
-      console.log('New user ' + username + ' was created.');
     });
 
     req.session.error = '';
-    req.session.user = newUser;
+    req.app.locals.user = newUser;
 
     res.redirect('/profile');
     res.end();

@@ -39,11 +39,13 @@ const loginRoutes = require('./Routes/login');
 const registerRoutes = require('./Routes/register');
 app.use('/', routes, profileRoutes, registerRoutes, loginRoutes);
 
-
 // database connection
 mongoose.connect('mongodb://localhost:27017/br-example', {
   useNewUrlParser: true,
 });
+
+// global app variables
+app.locals.username = null;
 
 // Only start the server if we can connect to database
 const db = mongoose.connection;
