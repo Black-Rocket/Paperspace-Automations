@@ -5,7 +5,8 @@ block content
   if error
     div(class="alert alert-danger" role="alert") #{error}
   form(action="register" method="POST")
-    input(type="hidden" name="_csrf" value="#{csrftoken}")
+    -var token = csrftoken
+    input(type="hidden", name="_csrf", value=`${token}`)
     div.form-group
       input(id="username" type="text" name="username" placeholder="Username" class="form-control" required)
     div.form-group

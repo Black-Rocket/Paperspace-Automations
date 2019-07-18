@@ -1,9 +1,10 @@
 // instance variables to use npm packages
 const express = require('express');
 const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
 const session = require('express-session');
 const csurf = require('csurf');
-const cookieParser = require('cookie-parser');
+const helmet = require('helmet');
 const mongoose = require('mongoose');
 const morgan = require('morgan');
 const path = require('path');
@@ -24,7 +25,8 @@ app.set('views', path.join(__dirname, 'views'));
 // declare session
 app.use(
     session({
-      secret: 'secret',
+      name: 'session',
+      secret: 'r0cketwasablacklab',
       resave: true,
       saveUninitialized: true,
     })
@@ -36,14 +38,20 @@ app.use(bodyParser.urlencoded({extended: true}));
 
 // Add in the csurf and cookie parser
 app.use(cookieParser());
-// csurf needs cookieparser and express session to be useful
-// so we import and use those first
-app.use(csurf());
 
-app.use(function(req, res, next) {
+const csrfMiddleware = csurf({
+  cookie: true,
+});
+
+app.use(csrfMiddleware);
+
+app.use((req, res, next) => {
   res.locals.csrftoken = req.csrfToken();
   next();
 });
+
+// helmet to protect headers
+app.use(helmet());
 
 // get routes
 const routes = require('./Routes/routes');
