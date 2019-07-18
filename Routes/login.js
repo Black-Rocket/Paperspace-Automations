@@ -18,17 +18,20 @@ router.post('/login', (req, res, next) => {
 
   if (username && password) {
     User.findOne({username: username, password: password}, (err, result) => {
-      if (err) throw err;
+      if (err) {
+        next(err);
+      } else {
+        if (result != null) {
+          req.app.locals.user = result;
 
-      req.app.locals.user = result;
-
-      res.redirect('/profile');
-      res.end();
+          res.redirect('/profile');
+          res.end();
+        } else {
+          res.redirect('/login');
+          res.end();
+        }
+      }
     });
-  } else {
-    // TODO: Add error for leaving info blank
-    res.redirect('/login');
-    res.end();
   }
 });
 

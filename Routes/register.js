@@ -7,9 +7,6 @@ const User = require('../models/user');
  * The get request for making an account
  */
 router.get('/register', (req, res, next) => {
-  if (req.session.error && req.session.error != '') {
-    res.render('register', {error: req.session.error});
-  }
   res.render('register');
 });
 
@@ -27,7 +24,7 @@ router.post('/register', (req, res, next) => {
   if (username && password && confirmPassword && apikey) {
     // Confirm that the correct password was typed in
     if (password.localeCompare(confirmPassword)) {
-      req.session.error = 'Passwords do not match!';
+      req.app.locals.error = 'Passwords do not match!';
       res.redirect('/register');
       res.end();
     }
@@ -39,16 +36,20 @@ router.post('/register', (req, res, next) => {
     });
 
     newUser.save((err) => {
-      if (err) throw err;
+      if (err) {
+        next(err);
+      }
     });
 
-    req.session.error = '';
+    // clear any errors and set new user
+    req.app.locals.error = '';
     req.app.locals.user = newUser;
 
     res.redirect('/profile');
     res.end();
   } else {
-    req.session.error = 'Missing registration information';
+    // display error and redirect to form
+    req.app.locals.error = 'Missing registration information';
     res.redirect('/register');
     res.end();
   }
