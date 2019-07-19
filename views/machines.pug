@@ -1,8 +1,16 @@
 extends template.pug
 
 block content
-    if user 
-        h1 Active Machines
-        h2 Inactive Machines
+    if user
+        if error
+            div(class="alert alert-danger" role="alert") #{error}
+        h1 Machines 
+        if machines != null
+            p Total Machines: #{machines.length} 
+            ul
+                each machine in machines
+                    li= machine.name
+        else   
+            p No machines active!
     else
         h1 Login/Register to view machines

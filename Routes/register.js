@@ -62,7 +62,6 @@ const findUser = async function(req, res, username, password, apiKey) {
         // If the username has already been used
         if (result != null) {
         // Redirect back to form since this is no longer valid
-          console.log('That username already exists!');
           req.app.locals.error = 'That username already exists!';
           res.redirect('/register');
           return;
@@ -70,30 +69,29 @@ const findUser = async function(req, res, username, password, apiKey) {
       }
   );
 
-  console.log('user does not exist! hash and save!');
   // Hash our api key and password
   const salt = 10;
   let hashPassword = '';
   await bcrypt.hash(password, salt).then(function(hashedPassword) {
-    console.log(hashedPassword);
     hashPassword = hashedPassword;
   });
 
-  let hashAPIKey = '';
+  // Will encrypt api keys when in production.
+  /* let hashAPIKey = '';
   await bcrypt.hash(apikey, salt).then(function(hashedPassword) {
     hashAPIKey = hashedPassword;
-  });
+  }); */
 
   // Create our user
   const newUser = await new User({
     username: username,
     password: hashPassword,
-    apikey: hashAPIKey,
+    apikey: apiKey,
   });
-  console.log('user created!');
+
   // Save our user
   newUser.save();
-  console.log('user saved!');
+
   // clear any errors and set new user
   req.app.locals.error = '';
   req.app.locals.user = newUser;

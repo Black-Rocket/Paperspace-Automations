@@ -58,7 +58,8 @@ const routes = require('./Routes/routes');
 const profileRoutes = require('./Routes/profile');
 const loginRoutes = require('./Routes/login');
 const registerRoutes = require('./Routes/register');
-app.use('/', routes, profileRoutes, registerRoutes, loginRoutes);
+const machineRoutes = require('./Routes/machines');
+app.use('/', routes, profileRoutes, registerRoutes, loginRoutes, machineRoutes);
 
 // database connection
 mongoose.connect('mongodb://localhost:27017/br-example', {
