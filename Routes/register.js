@@ -1,8 +1,10 @@
 const express = require('express');
+const bcrypt = require('bcrypt');
 // eslint-disable-next-line new-cap
 const router = express.Router();
 
 const User = require('../models/user');
+
 /**
  * The get request for making an account
  */
@@ -22,47 +24,83 @@ router.post('/register', (req, res, next) => {
 
   // Make sure the username and password have been entered
   if (username && password && confirmPassword && apikey) {
-    // check for existing usernames
-    User.findOne({username: username}, (error, result) => {
-      if (error) {
-        throw error;
-      } else {
-        if (result != null) {
-          req.app.locals.error = 'That username already exists!';
-          res.redirect('/register');
-        } else {
-          // Confirm that the correct password was typed in
-          if (password.localeCompare(confirmPassword)) {
-            req.app.locals.error = 'Passwords do not match!';
-            res.redirect('/register');
-          }
+    // Confirm that the correct password was typed in
+    if (password.localeCompare(confirmPassword)) {
+      console.log('Password does not match!');
+      req.app.locals.error = 'Passwords do not match!';
+      res.redirect('/register');
+      return;
+    }
 
-          const newUser = new User({
-            username: username,
-            password: password,
-            apikey: apikey,
-          });
-
-          newUser.save((err) => {
-            if (err) {
-              next(err);
-            }
-          });
-
-          // clear any errors and set new user
-          req.app.locals.error = '';
-          req.app.locals.user = newUser;
-
-          res.redirect('/profile');
-        }
-      }
-    });
+    // Find our user in the db
+    findUser(req, res, username, password, apikey);
   } else {
     // display error and redirect to form
-    req.app.locals.error = 'Missing registration information';
+    req.app.locals.error = 'Missing registration information.';
     res.redirect('/register');
   }
 });
+
+/**
+ * Find, validate, and save a user to the db.
+ * @param {Request} req
+ * @param {Response} res
+ * @param {String} username
+ * @param {String} password
+ * @param {String} apiKey
+ */
+const findUser = async function(req, res, username, password, apiKey) {
+  // check for existing usernames
+  await User.findOne(
+      {
+        username: username,
+      },
+      (error, result) => {
+        if (error) {
+          throw error;
+        }
+        // If the username has already been used
+        if (result != null) {
+        // Redirect back to form since this is no longer valid
+          console.log('That username already exists!');
+          req.app.locals.error = 'That username already exists!';
+          res.redirect('/register');
+          return;
+        }
+      }
+  );
+
+  console.log('user does not exist! hash and save!');
+  // Hash our api key and password
+  const salt = 10;
+  let hashPassword = '';
+  await bcrypt.hash(password, salt).then(function(hashedPassword) {
+    console.log(hashedPassword);
+    hashPassword = hashedPassword;
+  });
+
+  let hashAPIKey = '';
+  await bcrypt.hash(apikey, salt).then(function(hashedPassword) {
+    hashAPIKey = hashedPassword;
+  });
+
+  // Create our user
+  const newUser = await new User({
+    username: username,
+    password: hashPassword,
+    apikey: hashAPIKey,
+  });
+  console.log('user created!');
+  // Save our user
+  newUser.save();
+  console.log('user saved!');
+  // clear any errors and set new user
+  req.app.locals.error = '';
+  req.app.locals.user = newUser;
+
+  // Redirect
+  res.redirect('/profile');
+};
 
 // Export our routes to the app
 module.exports = router;
