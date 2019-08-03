@@ -34,7 +34,7 @@ router.get('/machines/:id/start', (req, res, next) => {
           if (err) throw err;
         }
     );
-    const url = '/machines/'+ req.params.id +'/settings';
+    const url = '/machines/' + req.params.id + '/settings';
     res.redirect(url);
   }
 });
@@ -88,7 +88,31 @@ router.get('/machines/:id/settings', (req, res, next) => {
 });
 
 /**
- *
+ * Add this machine to automated machines.
+ */
+router.post('/machines/:id/enable-automation', (req, res, next) => {
+  if (req.app.locals.user) {
+  }
+});
+
+/**
+ * Remove this machine from automated machines.
+ */
+router.post('/machines/:id/disable-automation', (req, res, next) => {
+  if (req.app.locals.user) {
+  }
+});
+
+/**
+ * Add or change the start and end times to desired automated machine.
+ */
+router.post('/machines/:id/automate', (req, res, next) => {
+  if (req.app.locals.user) {
+  }
+});
+
+/**
+ *Get machines to place in our machines view
  * @param {Response} res
  * @param {*} paperspace
  */
