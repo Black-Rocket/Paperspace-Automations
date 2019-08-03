@@ -43,11 +43,15 @@ router.get('/machines/:id/start', (req, res, next) => {
  * Stop the machine given an id
  */
 router.get('/machines/:id/stop', (req, res, next) => {
+  // Make sure we are logged in
   if (req.app.locals.user) {
     // AJAX success message here
+    // Create the paperspace object
     const paperspace = paperspaceNode({
       apiKey: req.app.locals.user.apikey,
     });
+
+    // Stop the machine
     paperspace.machines.stop(
         {
           machineId: req.params.id,
@@ -65,6 +69,7 @@ router.get('/machines/:id/stop', (req, res, next) => {
  * Automate the machine given an id
  */
 router.get('/machines/:id/settings', (req, res, next) => {
+  // Make sure we are logged in
   if (req.app.locals.user) {
     // Create our paperspace object
     const paperspace = paperspaceNode({
@@ -91,7 +96,9 @@ router.get('/machines/:id/settings', (req, res, next) => {
  * Add this machine to automated machines.
  */
 router.post('/machines/:id/enable-automation', (req, res, next) => {
+  // Make sure we are logged in
   if (req.app.locals.user) {
+    console.log('enable auto');
   }
 });
 
@@ -99,7 +106,9 @@ router.post('/machines/:id/enable-automation', (req, res, next) => {
  * Remove this machine from automated machines.
  */
 router.post('/machines/:id/disable-automation', (req, res, next) => {
+  // Make sure we are logged in
   if (req.app.locals.user) {
+    console.log('disable auto');
   }
 });
 
@@ -107,6 +116,7 @@ router.post('/machines/:id/disable-automation', (req, res, next) => {
  * Add or change the start and end times to desired automated machine.
  */
 router.post('/machines/:id/automate', (req, res, next) => {
+  // Make sure we are logged in
   if (req.app.locals.user) {
   }
 });
@@ -117,6 +127,7 @@ router.post('/machines/:id/automate', (req, res, next) => {
  * @param {*} paperspace
  */
 const getMachines = async function(res, paperspace) {
+  // Get all of our machines
   paperspace.machines.list((err, result) => {
     if (err) {
       res.redirect('/profile');

@@ -43,6 +43,7 @@ const csrfMiddleware = csurf({
   cookie: true,
 });
 
+// Protect against cross site request attacks
 app.use(csrfMiddleware);
 
 app.use((req, res, next) => {
