@@ -8,7 +8,13 @@ block content
         h3 User Id: #{machine.userId}
         h3 Status: #{machine.state}
         h3 Region: #{machine.region}
-        
+        div.row
+            div.col
+                -var startURL = 'machines/'+machine.id+'/start';
+                a(class="btn btn-primary btn-block" href=startURL role="button") Start
+            div.col
+                -var stopURL = 'machines/'+machine.id+'/stop';
+                a(class="btn btn-danger btn-block" href=stopURL role="button") Stop
         br
         h2 Automation Settings
         form(action="enable-automation" method="POST")

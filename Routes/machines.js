@@ -23,7 +23,19 @@ router.get('/machines', (req, res, next) => {
 router.get('/machines/:id/start', (req, res, next) => {
   if (req.app.locals.user) {
     // AJAX success message here
-    console.log('start', req.params.id);
+    const paperspace = paperspaceNode({
+      apiKey: req.app.locals.user.apikey,
+    });
+    paperspace.machines.start(
+        {
+          machineId: req.params.id,
+        },
+        function(err, result) {
+          if (err) throw err;
+        }
+    );
+    const url = '/machines/'+ req.params.id +'/settings';
+    res.redirect(url);
   }
 });
 
@@ -33,7 +45,19 @@ router.get('/machines/:id/start', (req, res, next) => {
 router.get('/machines/:id/stop', (req, res, next) => {
   if (req.app.locals.user) {
     // AJAX success message here
-    console.log('stop', req.params.id);
+    const paperspace = paperspaceNode({
+      apiKey: req.app.locals.user.apikey,
+    });
+    paperspace.machines.stop(
+        {
+          machineId: req.params.id,
+        },
+        function(err, result) {
+          if (err) throw err;
+        }
+    );
+    const url = '/machines/' + req.params.id + '/settings';
+    res.redirect(url);
   }
 });
 
