@@ -3,6 +3,8 @@ const paperspaceNode = require('paperspace-node');
 // eslint-disable-next-line new-cap
 const router = express.Router();
 
+const User = require('../models/user');
+
 /**
  * This route shows all machines by class
  */
@@ -98,7 +100,30 @@ router.get('/machines/:id/settings', (req, res, next) => {
 router.post('/machines/:id/enable-automation', (req, res, next) => {
   // Make sure we are logged in
   if (req.app.locals.user) {
-    console.log('enable auto');
+    // Instantiate a new machine
+    const newMachine = {
+      id: req.params.id,
+      startDate: null,
+      endDate: null,
+      autoMonday: false,
+      autoTuesday: false,
+      autoWednesday: false,
+      autoThursday: false,
+      autoFriday: false,
+      autoSaturday: false,
+      autoSunday: false,
+    };
+
+    // Find the user in our db from our local user.
+    User.findOne({username: req.app.locals.user.username}, (err, result) => {
+      if (err) throw err;
+
+      console.log('before:', result.automatedMachines);
+      result.automatedMachines.push(newMachine);
+      result.save();
+      console.log('after:', result.automatedMachines);
+      res.redirect('back');
+    });
   }
 });
 

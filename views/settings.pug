@@ -17,25 +17,22 @@ block content
                 a(class="btn btn-danger btn-block" href=stopURL role="button") Stop
         br
         h2 Automation Settings
-        
-        -var enableAction = 'machines/'+machine.id+'/enable-automation';
-        form(action=enableAction method="POST")
+    
+        form(action="enable-automation" method="POST")
             -var token = csrftoken
             input(type="hidden", name="_csrf", value=`${token}`)
             div.form-actions    
                 label(class="form-control" for="autoEnable") Enable Automation?
                 input(type="submit" value="Automate" id="autoEnable" class="btn btn-primary btn-lg")
-        
-        -var disableAction = 'machines/'+machine.id+'/disable-automation';
-        form(action=disableAction method="POST")
+
+        form(action='disable-automation' method="POST")
             -var token = csrftoken
             input(type="hidden", name="_csrf", value=`${token}`)
             div.form-actions    
                 label(class="form-control" for="autoEnable") Disable Automation?
                 input(type="submit" value="Disable Automation" id="autoEnable" class="btn btn-primary btn-lg")
         
-        -var autoAction = 'machines/'+machine.id+'/automate';
-        form(action=autoAction method="POST")
+        form(action='automate' method="POST")
             -var token = csrftoken
             input(type="hidden", name="_csrf", value=`${token}`)
             p(style="text-align:center; padding-top: 1em;") Which days would you like to automate?
