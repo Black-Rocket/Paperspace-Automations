@@ -18,6 +18,52 @@ router.get('/machines', (req, res, next) => {
 });
 
 /**
+ * Start the machine given an id
+ */
+router.get('/machines/:id/start', (req, res, next) => {
+  if (req.app.locals.user) {
+    // AJAX success message here
+    console.log('start', req.params.id);
+  }
+});
+
+/**
+ * Stop the machine given an id
+ */
+router.get('/machines/:id/stop', (req, res, next) => {
+  if (req.app.locals.user) {
+    // AJAX success message here
+    console.log('stop', req.params.id);
+  }
+});
+
+/**
+ * Automate the machine given an id
+ */
+router.get('/machines/:id/settings', (req, res, next) => {
+  if (req.app.locals.user) {
+    // Create our paperspace object
+    const paperspace = paperspaceNode({
+      apiKey: req.app.locals.user.apikey,
+    });
+
+    // Get the machine id from request
+    const machineId = req.params.id;
+
+    // Get the details of the machine from the id
+    paperspace.machines.show(
+        {
+          machineId: machineId,
+        },
+        function(err, result) {
+          if (err) throw err;
+          res.render('settings', {machine: result});
+        }
+    );
+  }
+});
+
+/**
  *
  * @param {Response} res
  * @param {*} paperspace

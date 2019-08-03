@@ -7,9 +7,24 @@ block content
         h1 Machines 
         if machines != null
             p Total Machines: #{machines.length} 
-            ul
                 each machine in machines
-                    li= machine.name
+                    div(class="card mb-3" style="width: 60em; margin:0 auto; padding:2em;")
+                        div(class="row no-gutters")
+                            div(class="col-md") 
+                                h5(class="card-title") #{machine.name}
+                                p(class="card-text") Status: #{machine.state}
+                                p(class="card-text") Region: #{machine.region}
+                                p(class="card-text") UserId: #{machine.userId}
+                            div(class="col")
+                                div(class="row" style="padding:.5em;")
+                                    -var startURL = 'machines/'+machine.id+'/start';
+                                    a(class="btn btn-primary btn-block" href=startURL role="button") Start
+                                div(class="row" style="padding:.5em;")
+                                    -var stopURL = 'machines/'+machine.id+'/stop';
+                                    a(class="btn btn-danger btn-block" href=stopURL role="button") Stop
+                                div(class="row" style="padding:.5em;")
+                                    -var settingsURL = 'machines/'+machine.id+'/settings';
+                                    a(class="btn btn-warning btn-block" href=settingsURL role="button") Settings                  
         else   
             p No machines active!
     else
