@@ -5,6 +5,7 @@ block content
         if error
             div(class="alert alert-danger" role="alert") #{error}
         h1 Name: #{machine.name}
+        h3 Machine Id: #{machine.id}
         h3 User Id: #{machine.userId}
         h3 Status: #{machine.state}
         h3 Region: #{machine.region}
@@ -17,59 +18,60 @@ block content
                 a(class="btn btn-danger btn-block" href=stopURL role="button") Stop
         br
         h2 Automation Settings
-    
-        form(action="enable-automation" method="POST")
-            -var token = csrftoken
-            input(type="hidden", name="_csrf", value=`${token}`)
-            div.form-actions    
-                label(class="form-control" for="autoEnable") Enable Automation?
-                input(type="submit" value="Automate" id="autoEnable" class="btn btn-primary btn-lg")
 
-        form(action='disable-automation' method="POST")
-            -var token = csrftoken
-            input(type="hidden", name="_csrf", value=`${token}`)
-            div.form-actions    
-                label(class="form-control" for="autoEnable") Disable Automation?
-                input(type="submit" value="Disable Automation" id="autoEnable" class="btn btn-primary btn-lg")
-        
-        form(action='automate' method="POST")
-            -var token = csrftoken
-            input(type="hidden", name="_csrf", value=`${token}`)
-            p(style="text-align:center; padding-top: 1em;") Which days would you like to automate?
-            div(style="margin: 0 auto; width: 100px;")
-                div.form-row
-                    div.col
-                        div(class="form-check form-check-inline")
-                            input(type="checkbox" class="form-check-input" id="autoMonday")
-                            label(class="form-check-label" for="autoMonday") Monday
-                        div(class="form-check form-check-inline")
-                            input(type="checkbox" class="form-check-input" id="autoTuesday")
-                            label(class="form-check-label" for="autoTuesday") Tuesday
-                        div(class="form-check form-check-inline")
-                            input(type="checkbox" class="form-check-input" id="autoWednesday")
-                            label(class="form-check-label" for="autoWednesday") Wednesday
-                div.form-row
-                    div.col
-                        div(class="form-check form-check-inline")
-                            input(type="checkbox" class="form-check-input" id="autoThursday")
-                            label(class="form-check-label" for="autoThursday") Thursday
-                        div(class="form-check form-check-inline")
-                            input(type="checkbox" class="form-check-input" id="autoFriday")
-                            label(class="form-check-label" for="autoFriday") Friday
-                        div(class="form-check form-check-inline")
-                            input(type="checkbox" class="form-check-input" id="autoSaturday")
-                            label(class="form-check-label" for="autoSaturday") Saturday
-                        div(class="form-check form-check-inline")
-                            input(type="checkbox" class="form-check-input" id="autoSunday")
-                            label(class="form-check-label" for="autoSunday") Sunday
-            div.form-row
-                div.col
-                    label(for="startTime") Start Time
-                    input(type="time" class="form-control" id="startTime")
-                div.col
-                    label(for="endTime") End Time
-                    input(type="time" class="form-control" id="endTime")
-            div.form-actions  
-                input(type="submit" value="Confirm" class="btn btn-primary btn-lg")
+        if automated
+            form(action='disable-automation' method="POST")
+                -var token = csrftoken
+                input(type="hidden", name="_csrf", value=`${token}`)
+                div.form-actions    
+                    label(class="form-control" for="autoEnable") Disable Automation?
+                    input(type="submit" value="Disable Automation" id="autoEnable" class="btn btn-danger btn-lg")
+            
+            form(action='automate' method="POST")
+                -var token = csrftoken
+                input(type="hidden", name="_csrf", value=`${token}`)
+                p(style="text-align:center; padding-top: 1em;") Which days would you like to automate?
+                    div(style="margin: 0 auto; width: 100px;")
+                        div.form-row
+                            div.col
+                                div(class="form-check form-check-inline")
+                                    input(type="checkbox" class="form-check-input" id="autoMonday")
+                                    label(class="form-check-label" for="autoMonday") Monday
+                                div(class="form-check form-check-inline")
+                                    input(type="checkbox" class="form-check-input" id="autoTuesday")
+                                    label(class="form-check-label" for="autoTuesday") Tuesday
+                                div(class="form-check form-check-inline")
+                                    input(type="checkbox" class="form-check-input" id="autoWednesday")
+                                    label(class="form-check-label" for="autoWednesday") Wednesday
+                        div.form-row
+                            div.col
+                                div(class="form-check form-check-inline")
+                                    input(type="checkbox" class="form-check-input" id="autoThursday")
+                                    label(class="form-check-label" for="autoThursday") Thursday
+                                div(class="form-check form-check-inline")
+                                    input(type="checkbox" class="form-check-input" id="autoFriday")
+                                    label(class="form-check-label" for="autoFriday") Friday
+                                div(class="form-check form-check-inline")
+                                    input(type="checkbox" class="form-check-input" id="autoSaturday")
+                                    label(class="form-check-label" for="autoSaturday") Saturday
+                                div(class="form-check form-check-inline")
+                                    input(type="checkbox" class="form-check-input" id="autoSunday")
+                                    label(class="form-check-label" for="autoSunday") Sunday
+                    div.form-row
+                        div.col
+                            label(for="startTime") Start Time
+                            input(type="time" class="form-control" id="startTime")
+                        div.col
+                            label(for="endTime") End Time
+                            input(type="time" class="form-control" id="endTime")
+                    div.form-actions  
+                        input(type="submit" value="Confirm" class="btn btn-primary btn-lg")
+        else
+            form(action="enable-automation" method="POST")
+                -var token = csrftoken
+                input(type="hidden", name="_csrf", value=`${token}`)
+                div.form-actions    
+                    label(class="form-control" for="autoEnable") Enable Automation?
+                    input(type="submit" value="Automate" id="autoEnable" class="btn btn-primary btn-lg")
     else   
         h1 Please login to view settings
