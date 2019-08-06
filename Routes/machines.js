@@ -12,7 +12,7 @@ router.get('/machines', (req, res, next) => {
   // Make sure we are logged in
   if (!req.app.locals.user) {
     res.redirect('/');
-    return false;
+    return;
   }
   const paperspace = paperspaceNode({
     apiKey: req.app.locals.user.apikey,
@@ -27,7 +27,7 @@ router.get('/machines/:id/start', (req, res, next) => {
   // Make sure we are logged in
   if (!req.app.locals.user) {
     res.redirect('/');
-    return false;
+    return;
   }
   // AJAX success message here
   const paperspace = paperspaceNode({
@@ -53,7 +53,7 @@ router.get('/machines/:id/stop', (req, res, next) => {
   // Make sure we are logged in
   if (!req.app.locals.user) {
     res.redirect('/');
-    return false;
+    return;
   }
   // Create the paperspace object
   const paperspace = paperspaceNode({
@@ -82,7 +82,7 @@ router.get('/machines/:id/settings', (req, res, next) => {
   // Make sure we are logged in
   if (!req.app.locals.user) {
     res.redirect('/');
-    return false;
+    return;
   }
   const user = req.app.locals.user;
   // Create our paperspace object
@@ -126,7 +126,7 @@ router.post('/machines/:id/enable-automation', (req, res, next) => {
   // Make sure we are logged in
   if (!req.app.locals.user) {
     res.redirect('/');
-    return false;
+    return;
   }
   // Instantiate a new machine
   const newMachine = {
@@ -171,7 +171,7 @@ router.post('/machines/:id/disable-automation', (req, res, next) => {
   // Make sure we are logged in
   if (!req.app.locals.user) {
     res.redirect('/');
-    return false;
+    return;
   }
   // Find the user in our db from our local user.
   User.findOne(
@@ -203,8 +203,20 @@ router.post('/machines/:id/automate', (req, res, next) => {
   // Make sure we are logged in
   if (!req.app.locals.user) {
     res.redirect('/');
-    return false;
+    return;
   }
+
+  console.log('start time', req.body.startTime);
+  console.log('end time', req.body.endTime);
+  console.log('autoMonday', req.body.autoMonday);
+  console.log('autoTuesday', req.body.autoTuesday);
+  console.log('autoWednesday', req.body.autoWednesday);
+  console.log('autoThursday', req.body.autoThursday);
+  console.log('autoFriday', req.body.autoFriday);
+  console.log('autoSaturday', req.body.autoSaturday);
+  console.log('autoSunday', req.body.autoSunday);
+
+  res.redirect('/back');
 });
 
 /**
