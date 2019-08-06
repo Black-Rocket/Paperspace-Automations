@@ -216,7 +216,7 @@ router.post('/machines/:id/automate', (req, res, next) => {
   console.log('autoSaturday', req.body.autoSaturday);
   console.log('autoSunday', req.body.autoSunday);
 
-  res.redirect('/back');
+  res.redirect('back');
 });
 
 /**

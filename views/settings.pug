@@ -32,38 +32,35 @@ block content
                 input(type="hidden", name="_csrf", value=`${token}`)
                 p(style="text-align:center; padding-top: 1em;") Which days would you like to automate?
                     div(style="margin: 0 auto; width: 100px;")
-                        div.form-row
-                            div.col
-                                div(class="form-check form-check-inline")
-                                    input(type="checkbox" class="form-check-input" id="autoMonday")
-                                    label(class="form-check-label" for="autoMonday") Monday
-                                div(class="form-check form-check-inline")
-                                    input(type="checkbox" class="form-check-input" id="autoTuesday")
-                                    label(class="form-check-label" for="autoTuesday") Tuesday
-                                div(class="form-check form-check-inline")
-                                    input(type="checkbox" class="form-check-input" id="autoWednesday")
-                                    label(class="form-check-label" for="autoWednesday") Wednesday
-                        div.form-row
-                            div.col
-                                div(class="form-check form-check-inline")
-                                    input(type="checkbox" class="form-check-input" id="autoThursday")
-                                    label(class="form-check-label" for="autoThursday") Thursday
-                                div(class="form-check form-check-inline")
-                                    input(type="checkbox" class="form-check-input" id="autoFriday")
-                                    label(class="form-check-label" for="autoFriday") Friday
-                                div(class="form-check form-check-inline")
-                                    input(type="checkbox" class="form-check-input" id="autoSaturday")
-                                    label(class="form-check-label" for="autoSaturday") Saturday
-                                div(class="form-check form-check-inline")
-                                    input(type="checkbox" class="form-check-input" id="autoSunday")
-                                    label(class="form-check-label" for="autoSunday") Sunday
+                        
+                        div(class="form-check form-check-inline")
+                            input(type="checkbox" class="form-check-input" id="autoMonday" name="autoMonday")
+                            label(class="form-check-label" for="autoMonday") Monday
+                        div(class="form-check form-check-inline")
+                            input(type="checkbox" class="form-check-input" id="autoTuesday" name="autoTuesday")
+                            label(class="form-check-label" for="autoTuesday") Tuesday
+                        div(class="form-check form-check-inline")
+                            input(type="checkbox" class="form-check-input" id="autoWednesday" name="autoWednesday")
+                            label(class="form-check-label" for="autoWednesday") Wednesday
+                        div(class="form-check form-check-inline")
+                            input(type="checkbox" class="form-check-input" id="autoThursday" name="autoThursday")
+                            label(class="form-check-label" for="autoThursday") Thursday
+                        div(class="form-check form-check-inline")
+                            input(type="checkbox" class="form-check-input" id="autoFriday" name="autoFriday")
+                            label(class="form-check-label" for="autoFriday") Friday
+                        div(class="form-check form-check-inline")
+                            input(type="checkbox" class="form-check-input" id="autoSaturday" name="autoSaturday")
+                            label(class="form-check-label" for="autoSaturday") Saturday
+                        div(class="form-check form-check-inline")
+                            input(type="checkbox" class="form-check-input" id="autoSunday" name="autoSunday")
+                            label(class="form-check-label" for="autoSunday") Sunday
                     div.form-row
                         div.col
                             label(for="startTime") Start Time
-                            input(type="time" class="form-control" id="startTime")
+                            input(type="time" class="form-control" name="startTime" id="startTime" required)
                         div.col
                             label(for="endTime") End Time
-                            input(type="time" class="form-control" id="endTime")
+                            input(type="time" class="form-control" name="endTime" id="endTime" required)
                     div.form-actions 
                         br 
                         input(type="submit" value="Confirm" class="btn btn-primary btn-lg")
