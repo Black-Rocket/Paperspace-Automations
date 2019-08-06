@@ -102,18 +102,20 @@ router.get('/machines/:id/settings', (req, res, next) => {
         if (err) throw err;
 
         let found = false;
+        let machineSettings = null;
         if (user.automatedMachines.length > 0) {
           for (let i = 0; i < user.automatedMachines.length; i++) {
             if (user.automatedMachines[i].id == machineId) {
               found = true;
+              machineSettings = user.automatedMachines[i];
               break;
             }
           }
         }
-
         res.render('settings', {
           machine: result,
           automated: found,
+          settings: machineSettings,
         });
       }
   );
@@ -131,8 +133,8 @@ router.post('/machines/:id/enable-automation', (req, res, next) => {
   // Instantiate a new machine
   const newMachine = {
     id: req.params.id,
-    startDate: null,
-    endDate: null,
+    startTime: 'notime',
+    endTime: 'notime',
     autoMonday: false,
     autoTuesday: false,
     autoWednesday: false,
@@ -152,7 +154,7 @@ router.post('/machines/:id/enable-automation', (req, res, next) => {
 
         // Machine already is automated
         if (result != null) {
-          // Add the new machine to the array and save to DB
+        // Add the new machine to the array and save to DB
           result.automatedMachines.push(newMachine);
           result.save();
           // Save our machines to local user
@@ -206,6 +208,23 @@ router.post('/machines/:id/automate', (req, res, next) => {
     return;
   }
 
+  if (req.body.autoMonday === 'on') {
+    // User.updateOne({id: req.params.id}, {autoMonday: true});
+  }
+  if (req.body.autoTuesday === 'on') {
+  }
+  if (req.body.autoWednesday === 'on') {
+  }
+  if (req.body.autoThursday === 'on') {
+  }
+  if (req.body.autoFriday === 'on') {
+  }
+  if (req.body.autoSaturday === 'on') {
+  }
+  if (req.body.autoSunday === 'on') {
+  }
+  console.log('type of time: ', typeof req.body.startTime);
+  console.log('type of check', typeof req.body.autoMonday);
   console.log('start time', req.body.startTime);
   console.log('end time', req.body.endTime);
   console.log('autoMonday', req.body.autoMonday);

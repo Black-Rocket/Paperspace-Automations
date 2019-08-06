@@ -34,33 +34,54 @@ block content
                     div(style="margin: 0 auto; width: 100px;")
                         
                         div(class="form-check form-check-inline")
-                            input(type="checkbox" class="form-check-input" id="autoMonday" name="autoMonday")
+                            if settings.autoMonday
+                                input(type="checkbox" class="form-check-input" id="autoMonday" name="autoMonday" checked)
+                            else
+                                input(type="checkbox" class="form-check-input" id="autoMonday" name="autoMonday")
                             label(class="form-check-label" for="autoMonday") Monday
                         div(class="form-check form-check-inline")
-                            input(type="checkbox" class="form-check-input" id="autoTuesday" name="autoTuesday")
+                            if settings.autoTuesday
+                                input(type="checkbox" class="form-check-input" id="autoTuesday" name="autoTuesday" checked)
+                            else
+                                input(type="checkbox" class="form-check-input" id="autoTuesday" name="autoTuesday")
                             label(class="form-check-label" for="autoTuesday") Tuesday
                         div(class="form-check form-check-inline")
-                            input(type="checkbox" class="form-check-input" id="autoWednesday" name="autoWednesday")
+                            if settings.autoWednesday
+                                input(type="checkbox" class="form-check-input" id="autoWednesday" name="autoWednesday" checked)
+                            else
+                                input(type="checkbox" class="form-check-input" id="autoWednesday" name="autoWednesday")
                             label(class="form-check-label" for="autoWednesday") Wednesday
                         div(class="form-check form-check-inline")
-                            input(type="checkbox" class="form-check-input" id="autoThursday" name="autoThursday")
+                            if settings.autoThursday
+                                input(type="checkbox" class="form-check-input" id="autoThursday" name="autoThursday" checked)
+                            else
+                                input(type="checkbox" class="form-check-input" id="autoThursday" name="autoThursday")
                             label(class="form-check-label" for="autoThursday") Thursday
                         div(class="form-check form-check-inline")
-                            input(type="checkbox" class="form-check-input" id="autoFriday" name="autoFriday")
+                            if settings.autoFriday
+                                input(type="checkbox" class="form-check-input" id="autoFriday" name="autoFriday" checked)
+                            else
+                                input(type="checkbox" class="form-check-input" id="autoFriday" name="autoFriday")
                             label(class="form-check-label" for="autoFriday") Friday
                         div(class="form-check form-check-inline")
-                            input(type="checkbox" class="form-check-input" id="autoSaturday" name="autoSaturday")
+                            if settings.autoSaturday
+                                input(type="checkbox" class="form-check-input" id="autoSaturday" name="autoSaturday" checked)
+                            else
+                                input(type="checkbox" class="form-check-input" id="autoSaturday" name="autoSaturday")
                             label(class="form-check-label" for="autoSaturday") Saturday
                         div(class="form-check form-check-inline")
-                            input(type="checkbox" class="form-check-input" id="autoSunday" name="autoSunday")
+                            if settings.autoSunday
+                                input(type="checkbox" class="form-check-input" id="autoSunday" name="autoSunday" checked)
+                            else
+                                input(type="checkbox" class="form-check-input" id="autoSunday" name="autoSunday")
                             label(class="form-check-label" for="autoSunday") Sunday
                     div.form-row
                         div.col
                             label(for="startTime") Start Time
-                            input(type="time" class="form-control" name="startTime" id="startTime" required)
+                            input(type="time" class="form-control" name="startTime" id="startTime" value=`${settings.startTime}` required)
                         div.col
                             label(for="endTime") End Time
-                            input(type="time" class="form-control" name="endTime" id="endTime" required)
+                            input(type="time" class="form-control" name="endTime" id="endTime" value=`${settings.endTime}` required)
                     div.form-actions 
                         br 
                         input(type="submit" value="Confirm" class="btn btn-primary btn-lg")

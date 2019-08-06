@@ -9,8 +9,8 @@ const UserSchema = new Schema({
   automatedMachines: [
     {
       id: String,
-      startDate: Date,
-      endDate: Date,
+      startTime: String,
+      endTime: String,
       autoMonday: Boolean,
       autoTuesday: Boolean,
       autoWednesday: Boolean,
