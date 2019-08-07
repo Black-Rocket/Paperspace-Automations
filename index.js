@@ -8,6 +8,9 @@ const helmet = require('helmet');
 const mongoose = require('mongoose');
 const morgan = require('morgan');
 const path = require('path');
+const scheduler = require('node-schedule');
+
+const User = require('./models/user');
 
 // declare the app and port
 const app = express();
@@ -24,31 +27,31 @@ app.set('views', path.join(__dirname, 'views'));
 
 // declare session
 app.use(
-    session({
-      name: 'session',
-      secret: 'r0cketwasablacklab',
-      resave: true,
-      saveUninitialized: true,
-    })
+	session({
+		name: 'session',
+		secret: 'r0cketwasablacklab',
+		resave: true,
+		saveUninitialized: true,
+	})
 );
 
 // interacting with http requests
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.urlencoded({ extended: true }));
 
 // Add in the csurf and cookie parser
 app.use(cookieParser());
 
 const csrfMiddleware = csurf({
-  cookie: true,
+	cookie: true,
 });
 
 // Protect against cross site request attacks
 app.use(csrfMiddleware);
 
 app.use((req, res, next) => {
-  res.locals.csrftoken = req.csrfToken();
-  next();
+	res.locals.csrftoken = req.csrfToken();
+	next();
 });
 
 // helmet to protect headers
@@ -64,7 +67,7 @@ app.use('/', routes, profileRoutes, registerRoutes, loginRoutes, machineRoutes);
 
 // database connection
 mongoose.connect('mongodb://localhost:27017/br-example', {
-  useNewUrlParser: true,
+	useNewUrlParser: true,
 });
 
 // global app variables
@@ -74,11 +77,36 @@ app.locals.username = null;
 const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function() {
-  // we're connected!
-  console.log('Database connection successful!');
+	// we're connected!
+	console.log('Database connection successful!');
 
-  // Start the server
-  app.listen(port, () => {
-    console.log('Server started on port ' + port + '.');
-  });
+	// Start the server
+	app.listen(port, () => {
+		console.log('Server started on port ' + port + '.');
+	});
 });
+
+const automateMachines = async function() {
+	// Get all of our users
+	User.find({}, (err, users) => {
+		if (err) throw err;
+
+		// Iterate through each user's automated machines
+		users.forEach((user) => {
+			const automateMachines = user.automateMachines;
+			automateMachines.forEach((machine) => {
+				// convert start and end time from string to date
+				const startHour = machine.startTime;
+				const startMinutes = machine.startTime;
+				const startHour = machine.startTime;
+				const startMinutes = machine.startTime;
+
+				const rule = new scheduler.RecurrenceRule();
+				rule.minute = 40;
+				scheduler.scheduleJob(rule, () => {
+					console.log('jobs done');
+				});
+			});
+		});
+	});
+};

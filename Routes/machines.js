@@ -221,41 +221,42 @@ router.post('/machines/:id/automate', (req, res, next) => {
     return;
   }
 
-  // Get data from checkboxes
+  // Get data from checkboxe
+  // 0 = sunday, 6 = saturday
   if (req.body.autoMonday === 'on') {
-    updateDay(req, 0, true);
-  } else {
-    updateDay(req, 0, false);
-  }
-  if (req.body.autoTuesday === 'on') {
     updateDay(req, 1, true);
   } else {
     updateDay(req, 1, false);
   }
-  if (req.body.autoWednesday === 'on') {
+  if (req.body.autoTuesday === 'on') {
     updateDay(req, 2, true);
   } else {
     updateDay(req, 2, false);
   }
-  if (req.body.autoThursday === 'on') {
+  if (req.body.autoWednesday === 'on') {
     updateDay(req, 3, true);
   } else {
     updateDay(req, 3, false);
   }
-  if (req.body.autoFriday === 'on') {
+  if (req.body.autoThursday === 'on') {
     updateDay(req, 4, true);
   } else {
     updateDay(req, 4, false);
   }
-  if (req.body.autoSaturday === 'on') {
+  if (req.body.autoFriday === 'on') {
     updateDay(req, 5, true);
   } else {
     updateDay(req, 5, false);
   }
-  if (req.body.autoSunday === 'on') {
+  if (req.body.autoSaturday === 'on') {
     updateDay(req, 6, true);
   } else {
     updateDay(req, 6, false);
+  }
+  if (req.body.autoSunday === 'on') {
+    updateDay(req, 0, true);
+  } else {
+    updateDay(req, 0, false);
   }
 
   // Find the user in our db from our local user.
