@@ -94,24 +94,27 @@ router.get('/machines/:id/settings', (req, res, next) => {
   const machineId = req.params.id;
 
   // Get the details of the machine from the id
-  paperspace.machines.show(
+  // Find the user in our db from our local user.
+  User.findOne(
       {
-        machineId: machineId,
+        username: req.app.locals.user.username,
       },
-      function(err, result) {
-        if (err) throw err;
+      (err, result) => {
+        if (err) {
+          throw err;
+        }
 
+        // Find our machine by id and update it, then update to DB.
         let found = false;
-        let machineSettings = null;
-        if (user.automatedMachines.length > 0) {
-          for (let i = 0; i < user.automatedMachines.length; i++) {
-            if (user.automatedMachines[i].id == machineId) {
-              found = true;
-              machineSettings = user.automatedMachines[i];
-              break;
-            }
+        let settingsIndex = -1;
+        for (let i = 0; i < result.automatedMachines.length; i++) {
+          if (result.automatedMachines[i].id === req.params.id) {
+            found = true;
+            settingsIndex = i;
+            break;
           }
         }
+        const machineSettings = result.automatedMachines[settingsIndex];
         res.render('settings', {
           machine: result,
           automated: found,
@@ -135,13 +138,7 @@ router.post('/machines/:id/enable-automation', (req, res, next) => {
     id: req.params.id,
     startTime: 'notime',
     endTime: 'notime',
-    autoMonday: false,
-    autoTuesday: false,
-    autoWednesday: false,
-    autoThursday: false,
-    autoFriday: false,
-    autoSaturday: false,
-    autoSunday: false,
+    dayOfWeek: [false, false, false, false, false, false, false],
   };
 
   // Find the user in our db from our local user.
@@ -186,7 +183,13 @@ router.post('/machines/:id/disable-automation', (req, res, next) => {
         }
 
         // Find our machine by id and delete it, then update to DB.
-        const posToDelete = result.automatedMachines.indexOf(req.params.id);
+        let posToDelete = -1;
+        for (let i = 0; i < result.automatedMachines.length; i++) {
+          if (result.automatedMachines[i].id === req.params.id) {
+            posToDelete = i;
+            break;
+          }
+        }
         result.automatedMachines.splice(posToDelete, 1);
         result.save();
         // Save our machines to local user
@@ -207,44 +210,43 @@ router.post('/machines/:id/automate', (req, res, next) => {
     return;
   }
 
+  // Get data from checkboxes
   if (req.body.autoMonday === 'on') {
-    updateDay(req, 'monday', true);
+    updateDay(req, 0, true);
   } else {
-    updateDay(req, 'monday', false);
+    updateDay(req, 0, false);
   }
   if (req.body.autoTuesday === 'on') {
-    updateDay(req, 'tuesday', true);
+    updateDay(req, 1, true);
   } else {
-    updateDay(req, 'tuesday', false);
+    updateDay(req, 1, false);
   }
   if (req.body.autoWednesday === 'on') {
-    updateDay(req, 'wednesday', true);
+    updateDay(req, 2, true);
   } else {
-    updateDay(req, 'wednesday', false);
+    updateDay(req, 2, false);
   }
   if (req.body.autoThursday === 'on') {
-    updateDay(req, 'thursday', true);
+    updateDay(req, 3, true);
   } else {
-    updateDay(req, 'thursday', false);
+    updateDay(req, 3, false);
   }
   if (req.body.autoFriday === 'on') {
-    updateDay(req, 'friday', true);
+    updateDay(req, 4, true);
   } else {
-    updateDay(req, 'friday', false);
+    updateDay(req, 4, false);
   }
   if (req.body.autoSaturday === 'on') {
-    updateDay(req, 'saturday', true);
+    updateDay(req, 5, true);
   } else {
-    updateDay(req, 'saturday', false);
+    updateDay(req, 5, false);
   }
   if (req.body.autoSunday === 'on') {
-    updateDay(req, 'sunday', true);
+    updateDay(req, 6, true);
   } else {
-    updateDay(req, 'sunday', false);
+    updateDay(req, 6, false);
   }
 
-  console.log('start time', req.body.startTime);
-  console.log('end time', req.body.endTime);
   // Find the user in our db from our local user.
   User.findOne(
       {
@@ -266,14 +268,13 @@ router.post('/machines/:id/automate', (req, res, next) => {
 
         result.automatedMachines[posToUpdate].startTime = req.body.startTime;
         result.automatedMachines[posToUpdate].endTime = req.body.endTime;
-
         result.save();
+
         // Save our machines to local user
         req.app.locals.user.automatedMachines = result.automatedMachines;
+        res.redirect(`/machines/${req.params.id}/settings`);
       }
   );
-
-  res.redirect('back');
 });
 
 /**
@@ -296,404 +297,63 @@ const getMachines = async function(res, paperspace) {
 /**
  *  Update a machine to run or not on a specific day and update the local user
  * @param {Request} req
- * @param {string} day
+ * @param {number} day
  * @param {boolean} run
  */
 const updateDay = async function(req, day, run) {
-  if (day.toLowerCase() === 'monday') {
-    if (run) {
-      // Find the user in our db from our local user.
-      User.findOne(
-          {
-            username: req.app.locals.user.username,
-          },
-          (err, result) => {
-            if (err) {
-              throw err;
-            }
-
-            // Find our machine by id and update it, then update to DB.
-            let posToUpdate = -1;
-            for (let i = 0; i < result.automatedMachines.length; i++) {
-              if (result.automatedMachines[i].id === req.params.id) {
-                posToUpdate = i;
-                break;
-              }
-            }
-
-            result.automatedMachines[posToUpdate].autoMonday = true;
-
-            result.save();
-            // Save our machines to local user
-            req.app.locals.user.automatedMachines = result.automatedMachines;
+  if (run) {
+    // Find the user in our db from our local user.
+    User.findOne(
+        {
+          username: req.app.locals.user.username,
+        },
+        (err, result) => {
+          if (err) {
+            throw err;
           }
-      );
-    } else {
-      // Find the user in our db from our local user.
-      User.findOne(
-          {
-            username: req.app.locals.user.username,
-          },
-          (err, result) => {
-            if (err) {
-              throw err;
+
+          // Find our machine by id and update it, then update to DB.
+          let posToUpdate = -1;
+          for (let i = 0; i < result.automatedMachines.length; i++) {
+            if (result.automatedMachines[i].id === req.params.id) {
+              posToUpdate = i;
+              break;
             }
-
-            // Find our machine by id and update it, then update to DB.
-            let posToUpdate = -1;
-            for (let i = 0; i < result.automatedMachines.length; i++) {
-              if (result.automatedMachines[i].id === req.params.id) {
-                posToUpdate = i;
-                break;
-              }
-            }
-
-            result.automatedMachines[posToUpdate].autoMonday = false;
-
-            result.save();
-            // Save our machines to local user
-            req.app.locals.user.automatedMachines = result.automatedMachines;
           }
-      );
-    }
-  } else if (day.toLowerCase() === 'tuesday') {
-    if (run) {
-      // Find the user in our db from our local user.
-      User.findOne(
-          {
-            username: req.app.locals.user.username,
-          },
-          (err, result) => {
-            if (err) {
-              throw err;
-            }
 
-            // Find our machine by id and update it, then update to DB.
-            let posToUpdate = -1;
-            for (let i = 0; i < result.automatedMachines.length; i++) {
-              if (result.automatedMachines[i].id === req.params.id) {
-                posToUpdate = i;
-                break;
-              }
-            }
+          result.automatedMachines[posToUpdate].dayOfWeek.set(day, true);
 
-            result.automatedMachines[posToUpdate].autoTuesday = true;
-
-            result.save();
-            // Save our machines to local user
-            req.app.locals.user.automatedMachines = result.automatedMachines;
-          }
-      );
-    } else {
-      // Find the user in our db from our local user.
-      User.findOne(
-          {
-            username: req.app.locals.user.username,
-          },
-          (err, result) => {
-            if (err) {
-              throw err;
-            }
-
-            // Find our machine by id and update it, then update to DB.
-            let posToUpdate = -1;
-            for (let i = 0; i < result.automatedMachines.length; i++) {
-              if (result.automatedMachines[i].id === req.params.id) {
-                posToUpdate = i;
-                break;
-              }
-            }
-
-            result.automatedMachines[posToUpdate].autoTuesday = false;
-
-            result.save();
-            // Save our machines to local user
-            req.app.locals.user.automatedMachines = result.automatedMachines;
-          }
-      );
-    }
-  } else if (day.toLowerCase() === 'wednesday') {
-    if (run) {
-      // Find the user in our db from our local user.
-      User.findOne(
-          {
-            username: req.app.locals.user.username,
-          },
-          (err, result) => {
-            if (err) {
-              throw err;
-            }
-
-            // Find our machine by id and update it, then update to DB.
-            let posToUpdate = -1;
-            for (let i = 0; i < result.automatedMachines.length; i++) {
-              if (result.automatedMachines[i].id === req.params.id) {
-                posToUpdate = i;
-                break;
-              }
-            }
-
-            result.automatedMachines[posToUpdate].autoWednesday = true;
-
-            result.save();
-            // Save our machines to local user
-            req.app.locals.user.automatedMachines = result.automatedMachines;
-          }
-      );
-    } else {
-      // Find the user in our db from our local user.
-      User.findOne(
-          {
-            username: req.app.locals.user.username,
-          },
-          (err, result) => {
-            if (err) {
-              throw err;
-            }
-
-            // Find our machine by id and update it, then update to DB.
-            let posToUpdate = -1;
-            for (let i = 0; i < result.automatedMachines.length; i++) {
-              if (result.automatedMachines[i].id === req.params.id) {
-                posToUpdate = i;
-                break;
-              }
-            }
-
-            result.automatedMachines[posToUpdate].autoWednesday = false;
-
-            result.save();
-            // Save our machines to local user
-            req.app.locals.user.automatedMachines = result.automatedMachines;
-          }
-      );
-    }
-  } else if (day.toLowerCase() === 'thursday') {
-    if (run) {
-      // Find the user in our db from our local user.
-      User.findOne(
-          {
-            username: req.app.locals.user.username,
-          },
-          (err, result) => {
-            if (err) {
-              throw err;
-            }
-
-            // Find our machine by id and update it, then update to DB.
-            let posToUpdate = -1;
-            for (let i = 0; i < result.automatedMachines.length; i++) {
-              if (result.automatedMachines[i].id === req.params.id) {
-                posToUpdate = i;
-                break;
-              }
-            }
-
-            result.automatedMachines[posToUpdate].autoThursday = true;
-
-            result.save();
-            // Save our machines to local user
-            req.app.locals.user.automatedMachines = result.automatedMachines;
-          }
-      );
-    } else {
-      // Find the user in our db from our local user.
-      User.findOne(
-          {
-            username: req.app.locals.user.username,
-          },
-          (err, result) => {
-            if (err) {
-              throw err;
-            }
-
-            // Find our machine by id and update it, then update to DB.
-            let posToUpdate = -1;
-            for (let i = 0; i < result.automatedMachines.length; i++) {
-              if (result.automatedMachines[i].id === req.params.id) {
-                posToUpdate = i;
-                break;
-              }
-            }
-
-            result.automatedMachines[posToUpdate].autoThursday = false;
-
-            result.save();
-            // Save our machines to local user
-            req.app.locals.user.automatedMachines = result.automatedMachines;
-          }
-      );
-    }
-  } else if (day.toLowerCase() === 'friday') {
-    if (run) {
-      // Find the user in our db from our local user.
-      User.findOne(
-          {
-            username: req.app.locals.user.username,
-          },
-          (err, result) => {
-            if (err) {
-              throw err;
-            }
-
-            // Find our machine by id and update it, then update to DB.
-            let posToUpdate = -1;
-            for (let i = 0; i < result.automatedMachines.length; i++) {
-              if (result.automatedMachines[i].id === req.params.id) {
-                posToUpdate = i;
-                break;
-              }
-            }
-
-            result.automatedMachines[posToUpdate].autoFriday = true;
-
-            result.save();
-            // Save our machines to local user
-            req.app.locals.user.automatedMachines = result.automatedMachines;
-          }
-      );
-    } else {
-      // Find the user in our db from our local user.
-      User.findOne(
-          {
-            username: req.app.locals.user.username,
-          },
-          (err, result) => {
-            if (err) {
-              throw err;
-            }
-
-            // Find our machine by id and update it, then update to DB.
-            let posToUpdate = -1;
-            for (let i = 0; i < result.automatedMachines.length; i++) {
-              if (result.automatedMachines[i].id === req.params.id) {
-                posToUpdate = i;
-                break;
-              }
-            }
-
-            result.automatedMachines[posToUpdate].autoFriday = false;
-
-            result.save();
-            // Save our machines to local user
-            req.app.locals.user.automatedMachines = result.automatedMachines;
-          }
-      );
-    }
-  } else if (day.toLowerCase() === 'saturday') {
-    if (run) {
-      // Find the user in our db from our local user.
-      User.findOne(
-          {
-            username: req.app.locals.user.username,
-          },
-          (err, result) => {
-            if (err) {
-              throw err;
-            }
-
-            // Find our machine by id and update it, then update to DB.
-            let posToUpdate = -1;
-            for (let i = 0; i < result.automatedMachines.length; i++) {
-              if (result.automatedMachines[i].id === req.params.id) {
-                posToUpdate = i;
-                break;
-              }
-            }
-
-            result.automatedMachines[posToUpdate].autoSaturday = true;
-
-            result.save();
-            // Save our machines to local user
-            req.app.locals.user.automatedMachines = result.automatedMachines;
-          }
-      );
-    } else {
-      // Find the user in our db from our local user.
-      User.findOne(
-          {
-            username: req.app.locals.user.username,
-          },
-          (err, result) => {
-            if (err) {
-              throw err;
-            }
-
-            // Find our machine by id and update it, then update to DB.
-            let posToUpdate = -1;
-            for (let i = 0; i < result.automatedMachines.length; i++) {
-              if (result.automatedMachines[i].id === req.params.id) {
-                posToUpdate = i;
-                break;
-              }
-            }
-
-            result.automatedMachines[posToUpdate].autoSaturday = false;
-
-            result.save();
-            // Save our machines to local user
-            req.app.locals.user.automatedMachines = result.automatedMachines;
-          }
-      );
-    }
-  } else if (day.toLowerCase() === 'sunday') {
-    if (run) {
-      // Find the user in our db from our local user.
-      User.findOne(
-          {
-            username: req.app.locals.user.username,
-          },
-          (err, result) => {
-            if (err) {
-              throw err;
-            }
-
-            // Find our machine by id and update it, then update to DB.
-            let posToUpdate = -1;
-            for (let i = 0; i < result.automatedMachines.length; i++) {
-              if (result.automatedMachines[i].id === req.params.id) {
-                posToUpdate = i;
-                break;
-              }
-            }
-
-            result.automatedMachines[posToUpdate].autoSunday = true;
-
-            result.save();
-            // Save our machines to local user
-            req.app.locals.user.automatedMachines = result.automatedMachines;
-          }
-      );
-    } else {
-      // Find the user in our db from our local user.
-      User.findOne(
-          {
-            username: req.app.locals.user.username,
-          },
-          (err, result) => {
-            if (err) {
-              throw err;
-            }
-
-            // Find our machine by id and update it, then update to DB.
-            let posToUpdate = -1;
-            for (let i = 0; i < result.automatedMachines.length; i++) {
-              if (result.automatedMachines[i].id === req.params.id) {
-                posToUpdate = i;
-                break;
-              }
-            }
-
-            result.automatedMachines[posToUpdate].autoSunday = false;
-
-            result.save();
-            // Save our machines to local user
-            req.app.locals.user.automatedMachines = result.automatedMachines;
-          }
-      );
-    }
+          result.save();
+          // Save our machines to local user
+          req.app.locals.user.automatedMachines = result.automatedMachines;
+        }
+    );
   } else {
-    console.log('invalid day');
+    // Find the user in our db from our local user.
+    User.findOne(
+        {
+          username: req.app.locals.user.username,
+        },
+        (err, result) => {
+          if (err) {
+            throw err;
+          }
+
+          // Find our machine by id and update it, then update to DB.
+          let posToUpdate = -1;
+          for (let i = 0; i < result.automatedMachines.length; i++) {
+            if (result.automatedMachines[i].id === req.params.id) {
+              posToUpdate = i;
+              break;
+            }
+          }
+
+          result.automatedMachines[posToUpdate].dayOfWeek.set(day, false);
+          result.save();
+          // Save our machines to local user
+          req.app.locals.user.automatedMachines = result.automatedMachines;
+        }
+    );
   }
 };
 
