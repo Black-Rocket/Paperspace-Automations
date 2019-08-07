@@ -6,7 +6,7 @@ const router = express.Router();
  * The get request for viewing all the current machines
  */
 router.get('/profile', (req, res, next) => {
-  res.render('profile');
+	res.render('profile');
 });
 
 // Export our routes to the app

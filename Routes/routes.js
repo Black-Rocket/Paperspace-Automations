@@ -6,14 +6,14 @@ const router = express.Router();
  * The get request for the home page.
  */
 router.get('/', (req, res, next) => {
-  res.render('index');
+	res.render('index');
 });
 
 /**
  * The get request for viewing an FAQ for how the app works.
  */
 router.get('/about', (req, res, next) => {
-  res.render('about');
+	res.render('about');
 });
 
 // Export our routes to the app

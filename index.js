@@ -9,6 +9,7 @@ const mongoose = require('mongoose');
 const morgan = require('morgan');
 const path = require('path');
 const scheduler = require('node-schedule');
+const paperspaceNode = require('paperspace-node');
 
 const User = require('./models/user');
 
@@ -37,7 +38,7 @@ app.use(
 
 // interacting with http requests
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.urlencoded({extended: true}));
 
 // Add in the csurf and cookie parser
 app.use(cookieParser());
@@ -83,6 +84,10 @@ db.once('open', function() {
 	// Start the server
 	app.listen(port, () => {
 		console.log('Server started on port ' + port + '.');
+
+		scheduler.scheduleJob('* * * * *', () => {
+			automateMachines();
+		});
 	});
 });
 
@@ -93,20 +98,73 @@ const automateMachines = async function() {
 
 		// Iterate through each user's automated machines
 		users.forEach((user) => {
-			const automateMachines = user.automateMachines;
-			automateMachines.forEach((machine) => {
-				// convert start and end time from string to date
-				const startHour = machine.startTime;
-				const startMinutes = machine.startTime;
-				const startHour = machine.startTime;
-				const startMinutes = machine.startTime;
+			// Get the automated machines from the user
+			if (user.automatedMachines.length > 0) {
+				const automateMachines = user.automatedMachines;
+				automateMachines.forEach((machine) => {
+					// Get the boolean array of when to run
+					const week = machine.dayOfWeek;
+					// Get the current day (0 = Sunday, etc)
+					const currentDate = new Date();
+					currentDay = currentDate.getDay();
 
-				const rule = new scheduler.RecurrenceRule();
-				rule.minute = 40;
-				scheduler.scheduleJob(rule, () => {
-					console.log('jobs done');
+					// If today is scheduled to be automated, turn it on/ off
+					if (week[currentDay]) {
+						// Get the current time
+						const currentHour = currentDate.getHours();
+						const currentMinute = currentDate.getMinutes();
+
+						// Get the automated start times and convert from string to int.
+						const automatedStartTime = machine.startTime;
+						const autoStartHour = parseInt(automatedStartTime.split(':')[0]);
+						const autoStartMinute = parseInt(automatedStartTime.split(':')[1]);
+
+						// Get the automated stop times and convert from string to int.
+						const automatedEndTime = machine.endTime;
+						const autoEndHour = parseInt(automatedEndTime.split(':')[0]);
+						const autoEndMinute = parseInt(automatedEndTime.split(':')[1]);
+
+						// If the current time is to start the machine, start it
+						if (
+							currentHour == autoStartHour &&
+							currentMinute == autoStartMinute
+						) {
+							// Create our paperspace object
+							const paperspace = paperspaceNode({
+								apiKey: user.apikey,
+							});
+
+							// Start the machine
+							paperspace.machines.start(
+								{
+									machineId: machine.id,
+								},
+								function(err) {
+									if (err) throw err;
+								}
+							);
+						}
+
+						// If the current time is time to stop, stop the machine
+						if (currentHour == autoEndHour && currentMinute == autoEndMinute) {
+							// Create our paperspace object
+							const paperspace = paperspaceNode({
+								apiKey: user.apikey,
+							});
+
+							// Stop the machine
+							paperspace.machines.stop(
+								{
+									machineId: machine.id,
+								},
+								function(err) {
+									if (err) throw err;
+								}
+							);
+						}
+					}
 				});
-			});
+			}
 		});
 	});
 };
