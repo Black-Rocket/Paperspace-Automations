@@ -84,42 +84,53 @@ router.get('/machines/:id/settings', (req, res, next) => {
     res.redirect('/');
     return;
   }
+
+  // Get the details of the machine from the id
+  // Find the user in our db from our local user.
+  // Get the machine id from request
+  const machineId = req.params.id;
   const user = req.app.locals.user;
   // Create our paperspace object
   const paperspace = paperspaceNode({
     apiKey: user.apikey,
   });
-
-  // Get the machine id from request
-  const machineId = req.params.id;
-
   // Get the details of the machine from the id
-  // Find the user in our db from our local user.
-  User.findOne(
+  paperspace.machines.show(
       {
-        username: req.app.locals.user.username,
+        machineId: machineId,
       },
-      (err, result) => {
-        if (err) {
-          throw err;
-        }
+      function(err, result) {
+        if (err) throw err;
 
-        // Find our machine by id and update it, then update to DB.
-        let found = false;
-        let settingsIndex = -1;
-        for (let i = 0; i < result.automatedMachines.length; i++) {
-          if (result.automatedMachines[i].id === req.params.id) {
-            found = true;
-            settingsIndex = i;
-            break;
-          }
-        }
-        const machineSettings = result.automatedMachines[settingsIndex];
-        res.render('settings', {
-          machine: result,
-          automated: found,
-          settings: machineSettings,
-        });
+        const paperspaceMachine = result;
+        // Get our user so we can get our DB automation settings
+        User.findOne(
+            {
+              username: req.app.locals.user.username,
+            },
+            (err, result) => {
+              if (err) {
+                throw err;
+              }
+
+              // Find our machine by id and update it, then update to DB.
+              let found = false;
+              let settingsIndex = -1;
+              for (let i = 0; i < result.automatedMachines.length; i++) {
+                if (result.automatedMachines[i].id === req.params.id) {
+                  found = true;
+                  settingsIndex = i;
+                  break;
+                }
+              }
+              const machineSettings = result.automatedMachines[settingsIndex];
+              res.render('settings', {
+                machine: paperspaceMachine,
+                automated: found,
+                settings: machineSettings,
+              });
+            }
+        );
       }
   );
 });
@@ -151,7 +162,7 @@ router.post('/machines/:id/enable-automation', (req, res, next) => {
 
         // Machine already is automated
         if (result != null) {
-        // Add the new machine to the array and save to DB
+          // Add the new machine to the array and save to DB
           result.automatedMachines.push(newMachine);
           result.save();
           // Save our machines to local user
