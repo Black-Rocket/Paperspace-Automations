@@ -67,9 +67,12 @@ const machineRoutes = require('./Routes/machines');
 app.use('/', routes, profileRoutes, registerRoutes, loginRoutes, machineRoutes);
 
 // database connection
-mongoose.connect('mongodb://localhost:27017/br-example', {
-	useNewUrlParser: true,
-});
+mongoose.connect(
+	'mongodb+srv://admin:r0cketwasablacklab@cluster0-q7wih.mongodb.net/test?retryWrites=true&w=majority',
+	{
+		useNewUrlParser: true,
+	}
+);
 
 // global app variables
 app.locals.username = null;
