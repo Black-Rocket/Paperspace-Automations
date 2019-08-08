@@ -82,11 +82,11 @@ const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function() {
 	// we're connected!
-	console.log('Database connection successful!');
+	// console.log('Database connection successful!');
 
 	// Start the server
 	app.listen(port, () => {
-		console.log('Server started on port ' + port + '.');
+		// ('Server started on port ' + port + '.');
 
 		scheduler.scheduleJob('* * * * *', () => {
 			automateMachines();
