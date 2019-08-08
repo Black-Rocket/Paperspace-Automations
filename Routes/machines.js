@@ -21,6 +21,21 @@ router.get('/machines', (req, res, next) => {
 });
 
 /**
+ * View all of the machines that we are automating
+ */
+router.get('/automated-machines', (req, res, next) => {
+	// Make sure we are logged in
+	if (!req.app.locals.user) {
+		res.redirect('/');
+		return;
+	}
+	const paperspace = paperspaceNode({
+		apiKey: req.app.locals.user.apikey,
+	});
+	getAutomatedMachines(req, res, paperspace);
+});
+
+/**
  * Start the machine given an id
  */
 router.get('/machines/:id/start', (req, res, next) => {
@@ -292,16 +307,41 @@ router.post('/machines/:id/automate', (req, res, next) => {
 /**
  *Get machines to place in our machines view
  * @param {Response} res
- * @param {*} paperspace
+ * @param {paperspace} paperspace
  */
 const getMachines = async function(res, paperspace) {
 	// Get all of our machines
 	paperspace.machines.list((err, result) => {
 		if (err) {
 			res.redirect('/profile');
-			return;
 		} else {
 			res.render('machines', {machines: result});
+		}
+	});
+};
+
+/**
+ *Get all of the machines we are automating
+ * @param {Request} req
+ * @param {Response} res
+ * @param {paperspace} paperspace
+ */
+const getAutomatedMachines = async function(req, res, paperspace) {
+	// Find the user with our machines
+	User.findOne({username: req.app.locals.user.username}, (err, result) => {
+		if (err) {
+			res.redirect('/profile');
+		} else {
+			// Get our automated machines from the user and declare
+			// an empty array to store them.
+			const userMachines = result.automatedMachines;
+			const automatedMachines = [];
+			// Query the user for automated machines
+			for (let i = 0; i < userMachines.length; i++) {
+				automatedMachines.push({id: userMachines[i].id});
+			}
+
+			res.render('automated-machines', {machines: automatedMachines});
 		}
 	});
 };
